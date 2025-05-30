@@ -59,5 +59,3 @@ def update_github_json(repo, file, updated_data, slack_items):
 		create_slack_message(slack_items)
 	except Exception as e:
 		logger.exception("An error occurred")
-
-# check_github_json()
