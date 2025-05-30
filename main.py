@@ -1,5 +1,6 @@
 import os
 import requests
+from github_data import check_github_json
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -11,23 +12,28 @@ def get_noon_weather_summaries(city):
 
 	if response.status_code != 200:
 		print(f"Error {response.status_code}: {response.text}")
-		return None
+		return
 
 	data = response.json()
 	summaries = []
+
 	for entry in data["list"]:
 		if "12:00:00" in entry["dt_txt"]:
 			main = entry["weather"][0]["main"]
-			has_rain_field = "rain" in entry
 			description = entry["weather"][0]["description"]
-			date = entry["dt_txt"].split(" ")[0]
 
-			if main.lower() == "rain" or has_rain_field:
-				summaries.append({ "Date": date, "Weather Description": description })
-				
-	# run github func here with summaries list as param (must be scope outside for loop)
-	print("Summaries", summaries)
-	return summaries
+			if "rain" in description.lower() or "rain" in main.lower() or "rain" in entry:
+				date = entry["dt_txt"].split(" ")[0]
+				summaries.append({
+					"Date": date,
+					"Weather Description": description
+				})
+
+	if summaries:
+		check_github_json(summaries)
+	else:
+		check_github_json(None)
+
 	
 if __name__ == "__main__":
 	get_noon_weather_summaries("London")
