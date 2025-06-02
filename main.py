@@ -1,10 +1,24 @@
 import os
 import requests
+from celery import Celery
+from celery.schedules import crontab
 from github_data import check_github_json
 from dotenv import load_dotenv
 load_dotenv()
 
-def get_noon_weather_summaries(city):
+app = Celery('main', broker='amqp://localhost')
+app.conf.timezone = 'Europe/London'
+app.conf.broker_pool_limit = 1
+app.conf.beat_schedule = {
+    'check-weather-every-30-seconds': {
+        'task': 'main.weather_task',
+        'schedule': crontab(hour=12, minute=0),
+        'args': ('London',)
+    },
+}
+
+@app.task(name='main.weather_task')
+def weather_task(city):
 	api_key = str(os.getenv('OPEN_WEATHER_MAP_API_KEY'))
 	url = "https://api.openweathermap.org/data/2.5/forecast"
 	params = {"q": city, "appid": api_key, "units": "metric"}
@@ -34,6 +48,6 @@ def get_noon_weather_summaries(city):
 	else:
 		check_github_json(None)
 
-	
-if __name__ == "__main__":
-	get_noon_weather_summaries("London")
+# Commented-out code kept if you want to test code instantly without scheduler
+# if __name__ == "__main__":
+# 	weather_task("London")

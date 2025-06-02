@@ -47,6 +47,7 @@ def check_github_json(forecast):
 			update_github_json(repo, file, db_data, slack_items=[new_items[-1]])
 	else:
 		print("No new items to commit")
+		create_slack_message("No change in the forecast found over the next 5 days.")
 
 
 
