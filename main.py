@@ -6,17 +6,19 @@ from github_data import check_github_json
 from dotenv import load_dotenv
 load_dotenv()
 
+# New
 app = Celery('main', broker='amqp://localhost')
 app.conf.timezone = 'Europe/London'
 app.conf.broker_pool_limit = 1
 app.conf.beat_schedule = {
-    'check-weather-every-30-seconds': {
+    'check-weather-daily-at-noon': {
         'task': 'main.weather_task',
         'schedule': crontab(hour=12, minute=0),
         'args': ('London',)
     },
 }
 
+# New decorator
 @app.task(name='main.weather_task')
 def weather_task(city):
 	api_key = str(os.getenv('OPEN_WEATHER_MAP_API_KEY'))
@@ -48,6 +50,6 @@ def weather_task(city):
 	else:
 		check_github_json(None)
 
-# Commented-out code kept if you want to test code instantly without scheduler
+# Used before Celery, commented-out now but kept if you want to test the API without Celery
 # if __name__ == "__main__":
 # 	weather_task("London")

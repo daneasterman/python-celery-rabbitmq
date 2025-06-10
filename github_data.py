@@ -50,7 +50,6 @@ def check_github_json(forecast):
 		create_slack_message("No change in the forecast found over the next 5 days.")
 
 
-
 def update_github_json(repo, file, updated_data, slack_items):
 	bytes_data = json.dumps(updated_data).encode('utf-8')
 	commit_msg = datetime.now(timezone.utc).strftime("Update weather data - %Y-%m-%d %H:%M:%S UTC")
